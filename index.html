@@ -23,7 +23,15 @@
             <div class="chat-messages" id="chatMessages"></div>
         </div>
     </div>
+	<script src="https://unpkg.com/@supabase/supabase-js"></script>
+	<script>
+	// Initialiser Supabase avec vos informations de projet
+	const supabaseUrl = 'https://kikivfglslrobwttvlvn.supabase.co';
+	const supabaseKey = 'process.env.SUPABASE_KEY';
+	const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+	</script>
 
+	
     <script>
         // Ajouter cette fonction directement dans le HTML
         async function startChat() {

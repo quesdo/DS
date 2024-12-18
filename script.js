@@ -12,6 +12,46 @@ function toggleVisibility(actorName, visible) {
         visible: visible
     }), "*");
 }
+// Fonction pour sauvegarder l'état
+async function saveClickState(data) {
+    const { error } = await supabase
+        .from('click_state')
+        .upsert([{ id: 'current_state', state: data }]);
+    if (error) {
+        console.error('Erreur de sauvegarde:', error);
+    }
+}
+
+// Fonction pour charger l'état
+async function loadClickState() {
+    const { data, error } = await supabase
+        .from('click_state')
+        .select('state')
+        .eq('id', 'current_state')
+        .single();
+    if (data) {
+        console.log('État chargé:', data.state);
+        applyState(data.state);
+    } else if (error) {
+        console.error('Erreur de chargement:', error);
+    }
+}
+
+// Appliquer l'état chargé (exemple)
+function applyState(state) {
+    if (state.clicked) {
+        document.getElementById('landingLogo').classList.add('shrink');
+        document.getElementById('w-assistant').classList.remove('hidden');
+    }
+}
+
+// Charger l'état au démarrage
+document.addEventListener('DOMContentLoaded', loadClickState);
+
+// Exemple de sauvegarde de l'état lorsqu'un clic est effectué
+document.getElementById('landingLogo').onclick = () => {
+    saveClickState({ clicked: true });
+};
 
 async function typeMessage(element, text, speed = 20) {
     let index = 0;
