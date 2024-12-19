@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://kikivfglslrobwttvlvn.supabase.co wss://kikivfglslrobwttvlvn.supabase.co; style-src 'self' 'unsafe-inline';">
-    <title>Layout Configuration - Dassault Systèmes</title>
-    <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+    <title>Dashboard QCD - Dassault Systèmes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --ds-blue: #005386;
+            --ds-green: #6EBE44;
         }
-
+        
         body {
-            background-color: #f5f5f5;
+            margin: 0;
             font-family: system-ui, -apple-system, sans-serif;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-
+        
         .header {
             background: var(--ds-blue);
             padding: 1rem 2rem;
@@ -24,80 +27,178 @@
             align-items: center;
             height: 80px;
         }
-
+        
         .logo {
             height: 60px;
             margin-right: 20px;
         }
-
+        
         .header-text {
             color: white;
         }
-
-        .card {
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            padding: 1rem;
+            gap: 1rem;
+            background: #f0f2f5;
+            height: calc(100vh - 80px);
+        }
+        
+        .indicators-panel {
+            flex: 3;
             background: white;
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: auto;
+        }
+        
+        .levers-panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 400px;
+            overflow: auto;
+        }
+        
+        .vertical-progress {
+            width: 180px;
+            height: 400px;
+            position: relative;
+            background: #f3f4f6;
+            border-radius: 12px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        
+        .indicators-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-start;
+            height: calc(100% - 60px);
+            padding: 1rem;
+            gap: 2rem;
+        }
+        
+        .vertical-fill {
+            position: absolute;
+            width: 100%;
+            border-radius: 12px;
+            transition: height 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+            bottom: 0;
+        }
+        
+        .target-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background-color: #ef4444;
+            left: 0;
+            z-index: 2;
+        }
+        
+        .lever-button {
+            position: relative;
+            width: 100%;
+            padding: 1.2rem;
+            margin-bottom: 0.8rem;
+            background-color: white;
+            border: 2px solid var(--ds-blue);
+            border-radius: 0.5rem;
+            text-align: left;
             cursor: pointer;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
+            transition: background-color 0.3s ease;
         }
-
-        .card:hover {
-            border-color: var(--ds-blue);
-        }
-
-        .card.active {
+        
+        .lever-button.active {
             background-color: var(--ds-blue);
             color: white;
         }
-
-        .card.active h2 {
-            color: white !important;
-        }
-
-        .checkmark {
-            color: var(--ds-blue);
-            font-size: 1.5rem;
-            transition: color 0.3s ease;
-        }
-
-        .card.active .checkmark {
-            color: white;
+        
+        .improvement-badge {
+            background: #f8fafc;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
         }
         
-        .main-container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
+        .improvement-badge.positive {
+            border-color: var(--ds-green);
+            color: var(--ds-green);
+        }
+        
+        .improvement-badge.negative {
+            border-color: var(--ds-blue);
+            color: var(--ds-blue);
+        }
+        
+        .indicator-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #374151;
+            text-align: center;
+            min-height: 4rem;
+        }
+        
+        .target-value {
+            font-size: 1.3rem;
+            margin-top: 1rem;
+            text-align: center;
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .initial-value {
+            font-size: 1.3rem;
+            margin-top: 0.5rem;
+            text-align: center;
+            color: #4b5563;
+        }
+        
+        .lever-text {
+            font-size: 1.5rem;
+            line-height: 1.2;
+            font-weight: 600;
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
     <header class="header">
+        <img src="logo.png" alt="Dassault Systèmes" class="logo">
         <div class="header-text">
-            <p class="text-lg">Layout Configuration</p>
+            <p class="text-lg">Quality, Capacity & Delivery Monitoring</p>
         </div>
     </header>
 
-    <main class="main-container">
-        <div class="bg-white rounded-lg p-6 mb-6 shadow-sm">
-            <h1 class="text-xl font-bold text-gray-800">Based on your production line analysis, I recommend the U-Shape layout.</h1>
+    <main class="main-content">
+        <div class="indicators-panel">
+            <h2 class="text-3xl font-bold mb-4 text-[#005386]">QCD Performance Indicators</h2>
+            <div class="indicators-container" id="indicators"></div>
         </div>
 
-        <div id="layout-card" class="card">
-            <div class="flex items-start gap-4">
-                <span class="checkmark">✓</span>
-                <div>
-                    <h2 class="text-lg font-bold text-[#005386] mb-2">Confirm U-Shape Layout</h2>
-                    <p class="text-gray-600">Proceed with the recommended layout</p>
-                </div>
-            </div>
+        <div class="levers-panel">
+            <h2 class="text-3xl font-bold mb-4 text-[#005386]">Improvement Levers</h2>
+            <div class="space-y-3" style="height: calc(100% - 60px)" id="levers"></div>
         </div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.1/dist/umd/supabase.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
