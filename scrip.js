@@ -4,56 +4,85 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const { createClient } = supabase;
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-document.addEventListener('DOMContentLoaded', () => {
-    const confirmCard = document.getElementById('confirm-layout');
-    const otherOptionsCard = document.getElementById('view-options');
+let channel = null;
 
-    // Gestion du clic sur "Confirm U-Shape Layout"
-    confirmCard.addEventListener('click', async () => {
-        try {
-            const { error } = await supabaseClient
-                .from('levers')
-                .update({ is_active: true })
-                .eq('name', 'line');
+function handleRealtimeUpdate(payload) {
+    if (payload.new && payload.new.name === 'line') {
+        updateCardState(payload.new.is_active);
+    }
+}
 
-            if (error) throw error;
+function updateCardState(isActive) {
+    const card = document.getElementById('layout-card');
+    if (isActive) {
+        card.classList.add('active');
+    } else {
+        card.classList.remove('active');
+    }
+}
 
-            // Redirection vers le dashboard après confirmation
-            window.location.href = '/dashboard.html';
-        } catch (err) {
-            console.error('Error updating layout lever:', err);
-        }
-    });
+async function handleCardClick() {
+    const card = document.getElementById('layout-card');
+    const currentState = card.classList.contains('active');
+    const newState = !currentState;
 
-    // Gestion du hover sur les cartes
-    [confirmCard, otherOptionsCard].forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.style.borderColor = '#005386';
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.borderColor = 'transparent';
-        });
-    });
+    try {
+        const { error } = await supabaseClient
+            .from('levers')
+            .update({ is_active: newState })
+            .eq('name', 'line');
 
-    // Vérification de l'état actuel du levier
-    async function checkLayoutStatus() {
-        try {
-            const { data, error } = await supabaseClient
-                .from('levers')
-                .select('is_active')
-                .eq('name', 'line')
-                .single();
+        if (error) throw error;
+        
+        updateCardState(newState);
+        
+    } catch (err) {
+        console.error('Error updating layout lever:', err);
+    }
+}
 
-            if (error) throw error;
-
-            if (data && data.is_active) {
-                confirmCard.style.backgroundColor = '#f0f9ff';
-                confirmCard.querySelector('.checkmark').style.color = '#6EBE44';
-            }
-        } catch (err) {
-            console.error('Error checking layout status:', err);
-        }
+function setupRealtimeSubscription() {
+    if (channel) {
+        channel.unsubscribe();
     }
 
-    checkLayoutStatus();
+    channel = supabaseClient
+        .channel('levers-channel')
+        .on(
+            'postgres_changes',
+            {
+                event: '*',
+                schema: 'public',
+                table: 'levers'
+            },
+            handleRealtimeUpdate
+        )
+        .subscribe();
+}
+
+async function fetchInitialState() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('levers')
+            .select('is_active')
+            .eq('name', 'line')
+            .single();
+
+        if (error) throw error;
+
+        if (data) {
+            updateCardState(data.is_active);
+        }
+    } catch (err) {
+        console.error('Error fetching initial state:', err);
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', () => {
+    const layoutCard = document.getElementById('layout-card');
+    layoutCard.addEventListener('click', handleCardClick);
+    
+    fetchInitialState();
+    setupRealtimeSubscription();
 });

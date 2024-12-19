@@ -4,18 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://kikivfglslrobwttvlvn.supabase.co wss://kikivfglslrobwttvlvn.supabase.co; style-src 'self' 'unsafe-inline';">
-    <title>Layout Recommendation - Dassault Systèmes</title>
-    <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+    <title>Layout Configuration - Dassault Systèmes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
             --ds-blue: #005386;
         }
-        
+
         body {
             background-color: #f5f5f5;
             font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
         }
-        
+
+        .header {
+            background: var(--ds-blue);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            height: 80px;
+        }
+
         .card {
             background: white;
             border-radius: 12px;
@@ -26,72 +35,51 @@
             border: 2px solid transparent;
             transition: all 0.3s ease;
         }
-        
+
         .card:hover {
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-color: var(--ds-blue);
         }
-        
-        .primary-button {
+
+        .card.active {
             background-color: var(--ds-blue);
             color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: background-color 0.3s ease;
         }
-        
-        .secondary-button {
-            background-color: white;
-            color: var(--ds-blue);
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            border: 2px solid var(--ds-blue);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
+
+        .card.active .checkmark {
+            color: white;
         }
-        
+
         .checkmark {
             color: var(--ds-blue);
             font-size: 1.5rem;
         }
     </style>
 </head>
-<body class="min-h-screen p-8">
-    <div class="max-w-3xl mx-auto">
+<body>
+    <header class="header">
+        <div class="header-text">
+            <p class="text-lg text-white">Layout Configuration</p>
+        </div>
+    </header>
+
+    <div class="container mx-auto max-w-3xl py-8 px-4">
         <div class="bg-white rounded-lg p-6 mb-6 shadow-sm">
             <h1 class="text-xl font-bold text-gray-800">Based on your production line analysis, I recommend the U-Shape layout.</h1>
         </div>
 
-        <div class="flex gap-4">
-            <div class="card flex-1" id="confirm-layout">
-                <div class="flex items-start gap-4">
-                    <span class="checkmark">✓</span>
-                    <div>
-                        <h2 class="text-lg font-bold text-[#005386] mb-2">Confirm U-Shape Layout</h2>
-                        <p class="text-gray-600">Proceed with the recommended layout</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card flex-1" id="view-options">
-                <div class="flex items-start gap-4">
-                    <span class="text-[#005386] text-xl">↺</span>
-                    <div>
-                        <h2 class="text-lg font-bold text-[#005386] mb-2">View Other Options</h2>
-                        <p class="text-gray-600">Explore alternative layouts</p>
-                    </div>
+        <div id="layout-card" class="card">
+            <div class="flex items-start gap-4">
+                <span class="checkmark">✓</span>
+                <div>
+                    <h2 class="text-lg font-bold text-[#005386] mb-2">Confirm U-Shape Layout</h2>
+                    <p class="text-gray-600">Proceed with the recommended layout</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.1/dist/umd/supabase.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
