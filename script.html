@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://kikivfglslrobwttvlvn.supabase.co wss://kikivfglslrobwttvlvn.supabase.co; style-src 'self' 'unsafe-inline';">
+    <title>Layout Configuration - Dassault Systèmes</title>
+    <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+    <style>
+        :root {
+            --ds-blue: #005386;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: var(--ds-blue);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            height: 60px;
+            margin-right: 20px;
+        }
+
+        .header-text {
+            color: white;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--ds-blue);
+        }
+
+        .card.active {
+            background-color: var(--ds-blue);
+            color: white;
+        }
+
+        .card.active h2 {
+            color: white !important;
+        }
+
+        .checkmark {
+            color: var(--ds-blue);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .card.active .checkmark {
+            color: white;
+        }
+        
+        .main-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <header class="header">
+        <div class="header-text">
+            <p class="text-lg">Layout Configuration</p>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="bg-white rounded-lg p-6 mb-6 shadow-sm">
+            <h1 class="text-xl font-bold text-gray-800">Based on your production line analysis, I recommend the U-Shape layout.</h1>
+        </div>
+
+        <div id="layout-card" class="card">
+            <div class="flex items-start gap-4">
+                <span class="checkmark">✓</span>
+                <div>
+                    <h2 class="text-lg font-bold text-[#005386] mb-2">Confirm U-Shape Layout</h2>
+                    <p class="text-gray-600">Proceed with the recommended layout</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.1/dist/umd/supabase.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
