@@ -1,10 +1,11 @@
+<!-- levers.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://kikivfglslrobwttvlvn.supabase.co wss://kikivfglslrobwttvlvn.supabase.co; style-src 'self' 'unsafe-inline';">
-    <title>Dashboard QCD - Dassault Systèmes</title>
+    <title>Dashboard QCD - Leviers</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
@@ -46,65 +47,13 @@
             height: calc(100vh - 80px);
         }
         
-        .indicators-panel {
-            flex: 3;
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: auto;
-        }
-        
         .levers-panel {
             flex: 1;
             background: white;
             border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            min-width: 400px;
             overflow: auto;
-        }
-        
-        .vertical-progress {
-            width: 180px;
-            height: 400px;
-            position: relative;
-            background: #f3f4f6;
-            border-radius: 12px;
-            margin: 0 auto;
-            overflow: visible;
-        }
-        
-        .indicators-container {
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-start;
-            height: calc(100% - 60px);
-            padding: 1rem;
-            gap: 2rem;
-        }
-        
-        .vertical-fill {
-            position: absolute;
-            width: 100%;
-            border-radius: 12px;
-            transition: height 0.6s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.4rem;
-            bottom: 0;
-        }
-        
-        .target-line {
-            position: absolute;
-            width: 100%;
-            height: 4px;
-            background-color: #ef4444;
-            left: 0;
-            z-index: 2;
         }
         
         .lever-button {
@@ -125,52 +74,6 @@
             color: white;
         }
         
-        .improvement-badge {
-            background: #f8fafc;
-            border: 2px solid;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-top: 1rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .improvement-badge.positive {
-            border-color: var(--ds-green);
-            color: var(--ds-green);
-        }
-        
-        .improvement-badge.negative {
-            border-color: var(--ds-blue);
-            color: var(--ds-blue);
-        }
-        
-        .indicator-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-            color: #374151;
-            text-align: center;
-            min-height: 4rem;
-        }
-        
-        .target-value {
-            font-size: 1.3rem;
-            margin-top: 1rem;
-            text-align: center;
-            color: #ef4444;
-            font-weight: bold;
-        }
-        
-        .initial-value {
-            font-size: 1.3rem;
-            margin-top: 0.5rem;
-            text-align: center;
-            color: #4b5563;
-        }
-        
         .lever-text {
             font-size: 1.5rem;
             line-height: 1.2;
@@ -187,18 +90,13 @@
     </header>
 
     <main class="main-content">
-        <div class="indicators-panel">
-            <h2 class="text-3xl font-bold mb-4 text-[#005386]">QCD Performance Indicators</h2>
-            <div class="indicators-container" id="indicators"></div>
-        </div>
-
         <div class="levers-panel">
             <h2 class="text-3xl font-bold mb-4 text-[#005386]">Improvement Levers</h2>
-            <div class="space-y-3" style="height: calc(100% - 60px)" id="levers"></div>
+            <div class="space-y-3" id="levers"></div>
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="script.js"></script>
+    <script type="module" src="levers.js"></script>
 </body>
 </html>
