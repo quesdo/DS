@@ -25,12 +25,16 @@
             padding: 1rem 2rem;
             display: flex;
             align-items: center;
+            justify-content: center;
             height: 80px;
         }
         
         .header-text {
             color: white;
-            font-size: 1.2rem;
+            font-size: 2rem;
+            font-weight: bold;
+            width: 800px;
+            text-align: center;
         }
         
         .main-content {
@@ -46,13 +50,6 @@
             border-radius: 8px;
             padding: 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .panel-title {
-            color: var(--ds-blue);
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 2rem;
         }
         
         .lever-button {
@@ -91,14 +88,11 @@
 </head>
 <body>
     <header class="header">
-        <div class="header-text" style="width: 100%; text-align: center;">
-            <p style="font-weight: bold; margin: 0;">Improvement Levers</p>
-        </div>
+        <div class="header-text">Improvement Levers</div>
     </header>
 
     <main class="main-content">
         <div class="levers-panel">
-            <h2 class="panel-title">Improvement Levers</h2>
             <div id="levers"></div>
         </div>
     </main>
