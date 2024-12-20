@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard QCD - Leviers</title>
+    <title>Dashboard QCD - Indicateurs</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
@@ -36,16 +36,15 @@
         .main-content {
             flex: 1;
             padding: 2rem;
-            max-width: 800px;
-            margin: 0 auto;
-            width: 100%;
         }
         
-        .levers-panel {
+        .indicators-panel {
             background: white;
             border-radius: 8px;
             padding: 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0 auto;
+            max-width: 1200px;
         }
         
         .panel-title {
@@ -55,51 +54,106 @@
             margin-bottom: 2rem;
         }
         
-        .lever-button {
-            width: 100%;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            background-color: white;
-            border: 2px solid var(--ds-blue);
-            border-radius: 0.5rem;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .lever-button:hover {
-            background-color: #f0f7ff;
-        }
-        
-        .lever-button.active {
-            background-color: var(--ds-blue);
-            color: white;
-        }
-        
-        .lever-text {
-            font-size: 1.5rem;
-            line-height: 1.2;
-            font-weight: 600;
-        }
-
-        #levers {
+        .indicators-container {
             display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            justify-content: space-around;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .indicator-card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .vertical-progress {
+            width: 180px;
+            height: 400px;
+            position: relative;
+            background: #f3f4f6;
+            border-radius: 12px;
+            margin: 1rem auto;
+        }
+        
+        .vertical-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            border-radius: 12px;
+            transition: height 0.6s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        
+        .target-line {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background-color: #ef4444;
+            left: 0;
+            z-index: 2;
+        }
+        
+        .indicator-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            min-height: 3rem;
+        }
+        
+        .target-value {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .initial-value {
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            color: #4b5563;
+        }
+        
+        .improvement-badge {
+            background: #f8fafc;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 1rem;
+            display: inline-block;
+        }
+        
+        .improvement-badge.positive {
+            border-color: var(--ds-green);
+            color: var(--ds-green);
+        }
+        
+        .improvement-badge.negative {
+            border-color: var(--ds-blue);
+            color: var(--ds-blue);
         }
     </style>
 </head>
 <body>
     <header class="header">
-        <div class="header-text">
-            <p>Quality, Capacity & Delivery Monitoring</p>
+        <div class="header-text" style="width: 100%; text-align: center;">
+            <p style="font-weight: bold; margin: 0;">Improvement Levers</p>
         </div>
     </header>
 
     <main class="main-content">
-        <div class="levers-panel">
-            <h2 class="panel-title">Improvement Levers</h2>
-            <div id="levers"></div>
+        <div class="indicators-panel">
+            <h2 class="panel-title">QCD Performance Indicators</h2>
+            <div id="indicators" class="indicators-container"></div>
         </div>
     </main>
 
@@ -110,14 +164,47 @@
         const { createClient } = supabase;
         const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
-        const ACRONYM_DEFINITIONS = {
-            amr: "Autonomous Mobile Robot",
-            ar: "AR: Quality Assistance",
-            kitting: "Kit Preparation Process",
-            assembly: "AR: Assembly Assistance",
-            mes: "Manufacturing Operation Management",
-            pick: "Automatisation",
-            line: "Layout"
+        const OPTIONS_IMPACT = {
+            amr: { quality: 0, capacity: 0, delivery: +4.0 },
+            ar: { quality: -2.25, capacity: 0, delivery: 0 },
+            kitting: { quality: 0, capacity: +1.7, delivery: 0 },
+            assembly: { quality: -2.25, capacity: 0, delivery: 0 },
+            mes: { quality: 0, capacity: +1.7, delivery: 0 },
+            pick: { quality: 0, capacity: +1.6, delivery: 0 },
+            line: { quality: 0, capacity: 0, delivery: +4.0 }
+        };
+
+        const INDICATORS = {
+            quality: { 
+                title: "Quality (Cost of non quality)", 
+                target: 4.5,
+                baseline: 9.0,
+                min: 0,
+                max: 10.0,
+                isQuality: true,
+                unit: "%",
+                getPercentage: (value, baseline) => ((baseline - value) / baseline * 100).toFixed(1)
+            },
+            capacity: { 
+                title: "Productivity (Parts/Person/Hour)", 
+                target: 12,
+                baseline: 7,
+                min: 0,
+                max: 15,
+                isQuality: false,
+                unit: " pcs/pers/h",
+                getPercentage: (value, baseline) => ((value - baseline) / baseline * 100).toFixed(1)
+            },
+            delivery: { 
+                title: "Delivery (Planning Adherence)", 
+                target: 95,
+                baseline: 87,
+                min: 0,
+                max: 100,
+                isQuality: false,
+                unit: "%",
+                getPercentage: (value, baseline) => ((value - baseline) / baseline * 100).toFixed(1)
+            }
         };
 
         let switchStates = {
@@ -132,58 +219,77 @@
 
         let channel = null;
 
+        function getTotalImpact(key) {
+            console.log('Calculating impact for:', key);
+            console.log('Current switch states:', switchStates);
+            
+            const impact = Object.keys(switchStates).reduce((acc, lever) => {
+                if (switchStates[lever]) {
+                    acc += OPTIONS_IMPACT[lever][key];
+                }
+                return acc;
+            }, 0);
+            
+            console.log('Total impact:', impact);
+            return impact;
+        }
+
+        function calculateValue(key) {
+            const baseValue = INDICATORS[key].baseline;
+            const totalImpact = getTotalImpact(key);
+            const newValue = baseValue + totalImpact;
+            console.log(`Calculating ${key}:`, { baseValue, totalImpact, newValue });
+            return Math.min(Math.max(newValue, INDICATORS[key].min), INDICATORS[key].max);
+        }
+
+        function createProgressBar(key, config) {
+            const value = calculateValue(key);
+            
+            let percentage;
+            if (config.isQuality) {
+                percentage = ((value - config.min) / (config.max - config.min)) * 100;
+            } else {
+                percentage = ((value - config.min) / (config.max - config.min)) * 100;
+            }
+
+            const targetPercentage = ((config.target - config.min) / (config.max - config.min)) * 100;
+            const isTargetReached = config.isQuality ? value <= config.target : value >= config.target;
+            const progressColor = isTargetReached ? '#6EBE44' : '#005386';
+            const improvementPercentage = config.getPercentage(value, config.baseline);
+
+            return `
+                <div class="indicator-card">
+                    <div class="indicator-title">${config.title}</div>
+                    <div class="vertical-progress">
+                        <div class="vertical-fill" style="height: ${percentage}%; background-color: ${progressColor};">
+                            <span>${value.toFixed(1)}${config.unit}</span>
+                        </div>
+                        <div class="target-line" style="bottom: ${targetPercentage}%"></div>
+                    </div>
+                    <div class="target-value">Target: ${config.target}${config.unit}</div>
+                    <div class="initial-value">Initial Value: ${config.baseline}${config.unit}</div>
+                    <div class="improvement-badge ${improvementPercentage < 0 ? 'negative' : 'positive'}">
+                        Improvement: ${Math.abs(improvementPercentage)}%
+                    </div>
+                </div>
+            `;
+        }
+
         function handleRealtimeUpdate(payload) {
+            console.log('Realtime update received:', payload);
             if (payload.new && payload.new.name) {
                 switchStates[payload.new.name] = payload.new.is_active;
                 updateDisplay();
             }
         }
 
-        async function handleLeverClick(leverName) {
-            const newState = !switchStates[leverName];
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('levers')
-                    .update({ is_active: newState })
-                    .eq('name', leverName);
-
-                if (error) throw error;
-                
-                switchStates[leverName] = newState;
-                updateDisplay();
-                
-            } catch (err) {
-                console.error('Error updating lever:', err);
-                switchStates[leverName] = !newState;
-                updateDisplay();
-            }
-        }
-
-        function createLeverButton(lever) {
-            const container = document.createElement('div');
-            const leverData = ACRONYM_DEFINITIONS[lever];
-            
-            container.innerHTML = `
-                <button class="lever-button ${switchStates[lever] ? 'active' : ''}" data-lever="${lever}">
-                    <div class="lever-text">${leverData}</div>
-                </button>
-            `;
-            
-            const button = container.querySelector('button');
-            button.addEventListener('click', () => handleLeverClick(lever));
-            
-            return container.firstElementChild;
-        }
-
         function updateDisplay() {
-            const leversDiv = document.getElementById("levers");
-            if (leversDiv) {
-                leversDiv.innerHTML = '';
-                Object.keys(ACRONYM_DEFINITIONS).forEach(lever => {
-                    const button = createLeverButton(lever);
-                    leversDiv.appendChild(button);
-                });
+            console.log('Updating display with states:', switchStates);
+            const indicatorsDiv = document.getElementById("indicators");
+            if (indicatorsDiv) {
+                indicatorsDiv.innerHTML = Object.keys(INDICATORS)
+                    .map(key => createProgressBar(key, INDICATORS[key]))
+                    .join('');
             }
         }
 
@@ -203,31 +309,40 @@
                     },
                     handleRealtimeUpdate
                 )
-                .subscribe();
+                .subscribe((status) => {
+                    console.log('Subscription status:', status);
+                });
         }
 
         async function fetchLevers() {
+            console.log('Fetching levers from Supabase...');
             try {
                 const { data, error } = await supabaseClient
                     .from('levers')
                     .select('*');
 
-                if (error) throw error;
+                if (error) {
+                    console.error('Error fetching levers:', error);
+                    throw error;
+                }
 
+                console.log('Received lever data:', data);
                 if (data && data.length > 0) {
                     switchStates = data.reduce((acc, lever) => {
                         acc[lever.name] = lever.is_active;
                         return acc;
                     }, {...switchStates});
+                    console.log('Updated switch states:', switchStates);
                     updateDisplay();
                 }
             } catch (err) {
-                console.error('Error fetching levers:', err);
+                console.error('Error in fetchLevers:', err);
             }
         }
 
         // Initialisation
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('Application initializing...');
             updateDisplay();
             fetchLevers();
             setupRealtimeSubscription();
