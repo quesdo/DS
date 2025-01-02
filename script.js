@@ -11,11 +11,11 @@ const CATEGORIES = {
     },
     delivery: {
         title: "Delivery",
-        levers: ["mes", "amr"]
+        levers: ["amr"]
     },
     cost: {
         title: "Cost",
-        levers: ["kitting", "pick", "line"]
+        levers: ["kitting", "pick", "mes", "line"]
     }
 };
 
@@ -39,14 +39,11 @@ let switchStates = {
     line: false
 };
 
-// Variable pour suivre l'état pending du bouton line
 let linePending = false;
-
 let channel = null;
 
 function handleRealtimeUpdate(payload) {
     if (payload.new && payload.new.name) {
-        // Si le changement concerne 'kitting', mettre à jour l'état pending du layout
         if (payload.new.name === 'kitting') {
             linePending = payload.new.is_active;
         }
@@ -89,17 +86,14 @@ async function handleCategoryClick(categoryName) {
 
     try {
         if (categoryName === 'cost') {
-            // Pour la catégorie Cost, on gère uniquement kitting et pick
             const kittingCurrentState = switchStates['kitting'];
             
-            // Mettre à jour kitting et pick (inverse de l'état actuel)
             await updateLeverState('kitting', !kittingCurrentState);
             await updateLeverState('pick', !kittingCurrentState);
+            await updateLeverState('mes', !kittingCurrentState);
             
-            // Mettre à jour l'état pending du layout
             linePending = !kittingCurrentState;
         } else {
-            // Pour les autres catégories, on garde le comportement normal
             const allActive = category.levers.every(lever => switchStates[lever]);
             const newState = !allActive;
             
@@ -121,17 +115,12 @@ function createLeverButton(lever) {
     let classes = [];
     
     if (lever === 'line') {
-        // Pour le bouton Layout
         if (switchStates[lever]) {
-            // Si le bouton est activé -> bleu
             classes.push('active');
         } else if (linePending) {
-            // Si le bouton n'est pas activé mais Cost est activé -> orange
             classes.push('pending');
         }
-        // Si aucune condition n'est remplie -> blanc (par défaut)
     } else {
-        // Pour tous les autres boutons, comportement normal
         if (switchStates[lever]) {
             classes.push('active');
         }
@@ -224,7 +213,6 @@ async function fetchLevers() {
     }
 }
 
-// Initialisation
 document.addEventListener('DOMContentLoaded', () => {
     updateDisplay();
     fetchLevers();
