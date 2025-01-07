@@ -7,12 +7,10 @@ const supabaseClient = createClient(supabaseUrl, supabaseKey);
 // Nouvelles valeurs d'impact sur le coût pour chaque levier
 const COST_IMPACTS = {
     kitting: 0.3,     // Kit preparation
-    pick: 0.5,        // Automation
+    pick: 1,        // Automation
     mes: 0.2,         // MOM
     line: 0.2,        // Layout
-    amr: 0.5,         // AMR
-    ar: 0.15,          // AR Quality
-    assembly: 0.15     // AR Assembly
+    assembly: 0.3     // AR Assembly
 };
 
 // Valeur maximale de l'échelle (3%)
@@ -21,11 +19,11 @@ const MAX_COST_VALUE = 3;
 const CATEGORIES = {
     quality: {
         title: "Quality",
-        levers: ["ar", "assembly", "kitting"]
+        levers: ["assembly", "kitting"]
     },
     delivery: {
         title: "Delivery",
-        levers: ["amr", "mes", "pick"]
+        levers: ["mes", "pick"]
     },
     cost: {
         title: "Cost",
@@ -34,9 +32,7 @@ const CATEGORIES = {
 };
 
 const ACRONYM_DEFINITIONS = {
-    amr: "Autonomous Mobile Robot",
-    ar: "AR: Quality Assistance",
-    kitting: "Kit Preparation Process",
+    kitting: "Kitting",
     assembly: "AR: Assembly Assistance",
     mes: "Manufacturing Operation Management",
     pick: "Automation",
@@ -44,8 +40,6 @@ const ACRONYM_DEFINITIONS = {
 };
 
 let switchStates = {
-    amr: false,
-    ar: false,
     kitting: false,
     assembly: false,
     mes: false,
@@ -97,11 +91,9 @@ async function handleCategoryClick(categoryName) {
 
     try {
         if (categoryName === 'cost') {
-            // Pour la catégorie Cost, on ne gère que le bouton line
             linePending = !linePending;
             updateDisplay();
         } else {
-            // Pour les autres catégories, on garde le comportement normal
             const allActive = category.levers.every(lever => switchStates[lever]);
             const newState = !allActive;
             
@@ -168,14 +160,17 @@ function createCategorySection(category, categoryData) {
 }
 
 function updateCostIndicator() {
+    // Calculer le coût total en vérifiant chaque levier actif
     const totalCost = Object.entries(switchStates)
         .reduce((total, [lever, isActive]) => {
-            return total + (isActive ? COST_IMPACTS[lever] : 0);
-        }, 0);
+            // S'assurer que le levier existe dans COST_IMPACTS
+            const impact = COST_IMPACTS[lever] || 0;
+            return total + (isActive ? impact : 0);
+        }, 0) || 0; // Utiliser 0 comme valeur par défaut si le résultat est NaN
 
     // Mettre à jour la barre de progression
     const progressBar = document.getElementById('costBar');
-    const heightPercentage = (totalCost / MAX_COST_VALUE) * 100;
+    const heightPercentage = Math.max(0, Math.min(100, (totalCost / MAX_COST_VALUE) * 100));
     progressBar.style.height = `${heightPercentage}%`;
 
     // Mettre à jour la valeur affichée
