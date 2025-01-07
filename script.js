@@ -4,18 +4,32 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const { createClient } = supabase;
 const supabaseClient = createClient(supabaseUrl, supabaseKey);
 
+// Nouvelles valeurs d'impact sur le coût pour chaque levier
+const COST_IMPACTS = {
+    kitting: 0.3,     // Kit preparation
+    pick: 0.5,        // Automation
+    mes: 0.2,         // MOM
+    line: 0.2,        // Layout
+    amr: 0.5,         // AMR
+    ar: 0.15,          // AR Quality
+    assembly: 0.15     // AR Assembly
+};
+
+// Valeur maximale de l'échelle (3%)
+const MAX_COST_VALUE = 3;
+
 const CATEGORIES = {
     quality: {
         title: "Quality",
-        levers: ["ar", "assembly"]
+        levers: ["ar", "assembly", "kitting"]
     },
     delivery: {
         title: "Delivery",
-        levers: ["amr"]
+        levers: ["amr", "mes", "pick"]
     },
     cost: {
         title: "Cost",
-        levers: ["kitting", "pick", "mes", "line"]
+        levers: ["line"]
     }
 };
 
@@ -44,9 +58,6 @@ let channel = null;
 
 function handleRealtimeUpdate(payload) {
     if (payload.new && payload.new.name) {
-        if (payload.new.name === 'kitting') {
-            linePending = payload.new.is_active;
-        }
         switchStates[payload.new.name] = payload.new.is_active;
         updateDisplay();
     }
@@ -86,14 +97,11 @@ async function handleCategoryClick(categoryName) {
 
     try {
         if (categoryName === 'cost') {
-            const kittingCurrentState = switchStates['kitting'];
-            
-            await updateLeverState('kitting', !kittingCurrentState);
-            await updateLeverState('pick', !kittingCurrentState);
-            await updateLeverState('mes', !kittingCurrentState);
-            
-            linePending = !kittingCurrentState;
+            // Pour la catégorie Cost, on ne gère que le bouton line
+            linePending = !linePending;
+            updateDisplay();
         } else {
+            // Pour les autres catégories, on garde le comportement normal
             const allActive = category.levers.every(lever => switchStates[lever]);
             const newState = !allActive;
             
@@ -159,6 +167,22 @@ function createCategorySection(category, categoryData) {
     return section;
 }
 
+function updateCostIndicator() {
+    const totalCost = Object.entries(switchStates)
+        .reduce((total, [lever, isActive]) => {
+            return total + (isActive ? COST_IMPACTS[lever] : 0);
+        }, 0);
+
+    // Mettre à jour la barre de progression
+    const progressBar = document.getElementById('costBar');
+    const heightPercentage = (totalCost / MAX_COST_VALUE) * 100;
+    progressBar.style.height = `${heightPercentage}%`;
+
+    // Mettre à jour la valeur affichée
+    const costValue = document.getElementById('costValue');
+    costValue.textContent = `${totalCost.toFixed(2)}%`;
+}
+
 function updateDisplay() {
     const leversDiv = document.getElementById("levers");
     if (leversDiv) {
@@ -168,6 +192,7 @@ function updateDisplay() {
             leversDiv.appendChild(section);
         });
     }
+    updateCostIndicator();
 }
 
 function setupRealtimeSubscription() {

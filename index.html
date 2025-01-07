@@ -40,16 +40,159 @@
         .main-content {
             flex: 1;
             padding: 2rem;
-            max-width: 800px;
-            margin: 0 auto;
             width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 4rem;
+            align-items: stretch;
+            height: calc(100vh - 120px);
+        }
+
+        .cost-indicator {
+            width: 400px;
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+
+        .progress-container {
+            width: 100px;
+            height: calc(100% - 200px);
+            background: #f8f9fa;
+            border-radius: 50px;
+            position: relative;
+            margin: 40px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            padding: 4px;
+            min-height: 600px;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            right: 4px;
+            background: var(--ds-blue);
+            border-radius: 46px;
+            transition: height 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            height: calc(66.67% - 8px);  /* Ajusté pour 2% exact */
+        }
+
+        .progress-marks {
+            position: absolute;
+            right: 120px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 1.6rem;
+            color: var(--ds-blue);
+            font-weight: 500;
+        }
+
+        .progress-scale {
+            position: absolute;
+            left: 8px;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .scale-mark {
+            position: absolute;
+            width: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .scale-mark::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 14px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 1px;
+        }
+
+        .limit-line {
+            position: absolute;
+            right: -24px;
+            width: 158px;
+            height: 3px;
+            background: #FF4444;
+            top: calc((1 - 2/3) * 100%);
+            border-radius: 1.5px;
+        }
+
+        .limit-text {
+            position: absolute;
+            right: 130px;
+            top: calc((1 - 2/3) * 100%);
+            transform: translateY(-50%);
+            color: #FF4444;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .scale-mark:nth-child(1) { top: calc((1 - 2/3) * 100%); }
+        .scale-mark:nth-child(2) { top: calc((1 - 1.5/3) * 100%); }
+        .scale-mark:nth-child(3) { top: calc((1 - 0.75/3) * 100%); }
+
+        .progress-marks {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .progress-marks div {
+            position: absolute;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        .progress-marks div:nth-child(1) { top: calc((1 - 3/3) * 100%); }
+        .progress-marks div:nth-child(2) { top: calc((1 - 2/3) * 100%); }
+        .progress-marks div:nth-child(3) { top: calc((1 - 1.5/3) * 100%); }
+        .progress-marks div:nth-child(4) { top: calc((1 - 0.75/3) * 100%); }
+        .progress-marks div:nth-child(5) { top: 100%; }
+
+        .progress-title {
+            font-size: 2.2rem;
+            color: var(--ds-blue);
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .progress-value {
+            font-size: 2.6rem;
+            color: var(--ds-blue);
+            font-weight: bold;
+            margin-top: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         .levers-panel {
+            flex: 1;
             background: white;
             border-radius: 8px;
             padding: 2rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 100%;
+            overflow-y: auto;
         }
         
         .lever-button {
@@ -120,6 +263,27 @@
     </header>
 
     <main class="main-content">
+        <div class="cost-indicator">
+            <div class="progress-title">CAPEX<br>(% Line revenue)</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="costBar"></div>
+                <div class="limit-line"></div>
+                <div class="limit-text">Limit 2%</div>
+                <div class="progress-scale">
+                    <div class="scale-mark"></div>
+                    <div class="scale-mark"></div>
+                    <div class="scale-mark"></div>
+                </div>
+                <div class="progress-marks">
+                    <div>3%</div>
+                    <div></div>
+                    <div>1.5%</div>
+                    <div>0.75%</div>
+                    <div>0%</div>
+                </div>
+            </div>
+            <div class="progress-value" id="costValue">2.00%</div>
+        </div>
         <div class="levers-panel">
             <div id="levers"></div>
         </div>
