@@ -33,7 +33,7 @@ const CATEGORIES = {
 
 const ACRONYM_DEFINITIONS = {
     kitting: "Kitting",
-    assembly: "Assembly Assistance with Augmented Reality",
+    assembly: "Sense Computing",
     mes: "Manufacturing Operation Management",
     pick: "Automation",
     line: "Layout"
